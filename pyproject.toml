@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "Claude Code", email = "noreply@anthropic.com" }
+    { name = "Anya Korsakova", email = "anya@codehelix.ai" }
 ]
 dependencies = [
     "openreview-py>=1.42.0",

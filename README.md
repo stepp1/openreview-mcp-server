@@ -1,5 +1,9 @@
 # OpenReview MCP server
 
+[![Build Status](https://img.shields.io/github/actions/workflow/status/anyakors/openreview-mcp-server/ci.yml?branch=main)](https://github.com/anyakors/openreview-mcp-server/actions)
+[![License](https://img.shields.io/github/license/anyakors/openreview-mcp-server.svg)](LICENSE)
+[![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+
 A Model Context Protocol (MCP) server that provides access to OpenReview data for research and analysis. This server allows you to search for users, fetch papers, and export research data from major ML conferences (ICML, ICLR, NeurIPS).
 
 ## Features
