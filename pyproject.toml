@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "openreview-mcp-server"
 version = "0.1.0"
-description = "A flexible OpenReview search and analysis service with MCP protocol support"
+description = "An OpenReview manuscript search and analysis service with MCP protocol support"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -43,9 +43,11 @@ dev = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-asyncio_fixture_loop_scope = "function"
 testpaths = ["tests"]
 addopts = "-v --cov=openreview_mcp_server"
+markers = [
+    "asyncio: marks tests as async"
+]
 
 [project.scripts]
 openreview-mcp-server = "openreview_mcp_server:main"
