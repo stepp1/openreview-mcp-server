@@ -24,7 +24,7 @@ from .tools import (
 settings = Settings()
 logger = logging.getLogger("openreview-mcp-server")
 logger.setLevel(logging.INFO)
-server = Server(settings.APP_NAME)
+server = Server(settings.app_name)
 
 
 @server.list_tools()
@@ -68,11 +68,16 @@ async def main():
             streams[0],
             streams[1],
             InitializationOptions(
-                server_name=settings.APP_NAME,
-                server_version=settings.APP_VERSION,
+                server_name=settings.app_name,
+                server_version=settings.app_version,
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(resources_changed=True),
                     experimental_capabilities={},
                 ),
             ),
         )
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

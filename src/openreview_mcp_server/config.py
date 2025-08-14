@@ -12,28 +12,26 @@ from typing import Optional
 class Settings(BaseSettings):
     """Configuration settings for OpenReview MCP server."""
     
-    APP_NAME: str = "openreview-mcp-server"
-    APP_VERSION: str = "0.1.0"
-    
-    # OpenReview API settings
-    OPENREVIEW_BASE_URL: str = "https://api2.openreview.net"
-    OPENREVIEW_USERNAME: Optional[str] = None
-    OPENREVIEW_PASSWORD: Optional[str] = None
+    app_name: str = "openreview-mcp-server"
+    app_version: str = "0.1.0"
+    openreview_base_url: str = "https://api2.openreview.net"
+    openreview_username: Optional[str] = None
+    openreview_password: Optional[str] = None
     
     # Default venues to support
-    DEFAULT_VENUES: list = [
+    default_venues: list = [
         "ICLR.cc",
         "NeurIPS.cc", 
         "ICML.cc"
     ]
     
     # Cache settings
-    CACHE_ENABLED: bool = True
-    CACHE_TTL_SECONDS: int = 3600  # 1 hour
-    
+    cache_enabled: bool = True
+    cache_ttl_seconds: int = 3600  # 1 hour
+
     # Export settings
-    DEFAULT_EXPORT_DIR: str = "./openreview_exports"
-    
+    default_export_dir: str = "./openreview_exports"
+
     class Config:
         env_file = ".env"
         env_prefix = "OPENREVIEW_"

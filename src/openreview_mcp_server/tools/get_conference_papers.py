@@ -66,9 +66,9 @@ async def handle_get_conference_papers(arguments: Dict[str, Any]) -> List[types.
         
         # Initialize client
         client = OpenReviewClient(
-            username=settings.OPENREVIEW_USERNAME,
-            password=settings.OPENREVIEW_PASSWORD,
-            base_url=settings.OPENREVIEW_BASE_URL
+            username=settings.openreview_username,
+            password=settings.openreview_password,
+            base_url=settings.openreview_base_url
         )
         
         # Get conference papers

@@ -1,6 +1,6 @@
-# OpenReview MCP Server
+# OpenReview MCP server
 
-A Model Context Protocol (MCP) server that provides access to OpenReview data for research and analysis. This server allows you to search for users, fetch papers, and export research data from major ML conferences.
+A Model Context Protocol (MCP) server that provides access to OpenReview data for research and analysis. This server allows you to search for users, fetch papers, and export research data from major ML conferences (ICML, ICLR, NeurIPS).
 
 ## Features
 
@@ -44,7 +44,25 @@ Add this server to your Claude Code MCP configuration:
 }
 ```
 
-## Available Tools
+From the command line:
+
+```
+claude mcp add-json openreview '{"command":"openreview-mcp-server","cwd":"/install/dir/openreview-mcp-server","env":{"OPENREVIEW_USERNAME":"username","OPENREVIEW_PASSWORD":"password","OPENREVIEW_BASE_URL":"https://api2.openreview.net","OPENREVIEW_DEFAULT_EXPORT_DIR":"./openreview_exports"}}'
+```
+
+Then run the query:
+
+```
+Can you please use search_papers tool from the openreview mcp with keywords "time series token merging", match mode "all", venues ICLR and ICML 2025?
+...
+Please export the contents of this paper.
+```
+ 
+## Example output
+
+![Example Output](public/output.jpg)
+
+## Available tools
 
 ### search_user
 Find a user profile by email address.
@@ -95,7 +113,7 @@ export_papers(
 )
 ```
 
-## Example Workflow
+## Example workflow
 
 1. Search for papers on a topic of interest:
 ```
@@ -109,7 +127,7 @@ export_papers(query="time series forecasting", venues=[{"venue": "ICLR.cc", "yea
 
 3. Use the exported JSON files with Claude Code to implement methods inspired by the research.
 
-## Supported Conferences
+## Supported conferences
 
 - ICLR (International Conference on Learning Representations)
 - NeurIPS (Conference on Neural Information Processing Systems)

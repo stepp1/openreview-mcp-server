@@ -57,7 +57,7 @@ search_papers_tool = types.Tool(
                 "type": "string",
                 "enum": ["any", "all", "exact"],
                 "description": "Match any keyword, all keywords, or exact phrase",
-                "default": "any"
+                "default": "all"
             },
             "limit": {
                 "type": "integer",
@@ -103,9 +103,9 @@ async def handle_search_papers(arguments: Dict[str, Any]) -> List[types.TextCont
         
         # Initialize client
         client = OpenReviewClient(
-            username=settings.OPENREVIEW_USERNAME,
-            password=settings.OPENREVIEW_PASSWORD,
-            base_url=settings.OPENREVIEW_BASE_URL
+            username=settings.openreview_username,
+            password=settings.openreview_password,
+            base_url=settings.openreview_base_url
         )
         
         all_results = []

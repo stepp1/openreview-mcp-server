@@ -8,6 +8,8 @@ Tool for exporting papers to JSON files for further analysis.
 import json
 import logging
 import os
+import re
+import requests
 from datetime import datetime
 import mcp.types as types
 from typing import Dict, Any, List
@@ -16,6 +18,63 @@ from ..config import Settings
 
 logger = logging.getLogger(__name__)
 settings = Settings()
+
+
+def extract_text_pymupdf(pdf_path: str) -> str:
+    """Extract text from PDF using PyMuPDF."""
+    try:
+        import pymupdf
+        doc = pymupdf.open(pdf_path)
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return text
+    except ImportError:
+        logger.error("PyMuPDF not installed. Install with: pip install PyMuPDF")
+        return ""
+    except Exception as e:
+        logger.error(f"Error extracting text from PDF: {str(e)}")
+        return ""
+
+
+def extract_up_to_references(pdf_path: str) -> str:
+    """Extract text from PDF up to the References section."""
+    full_text = extract_text_pymupdf(pdf_path)
+    if not full_text:
+        return ""
+    
+    # Regex to capture everything up to "References" (case-insensitive, section header on its own line)
+    pattern = re.compile(
+        r"^(.*?)(?:\nReferences\b.*|$)", 
+        re.DOTALL | re.IGNORECASE
+    )
+    match = pattern.search(full_text)
+    if match:
+        return match.group(1).strip()
+    else:
+        logger.warning("Could not find the References section, returning full text")
+        return full_text
+
+
+def download_pdf(paper_id: str, export_dir: str) -> str:
+    """Download PDF for a paper and return the file path."""
+    pdf_url = f"https://openreview.net/pdf?id={paper_id}"
+    pdf_path = os.path.join(export_dir, f"{paper_id}.pdf")
+    
+    try:
+        response = requests.get(pdf_url, timeout=30)
+        response.raise_for_status()
+        
+        with open(pdf_path, "wb") as f:
+            f.write(response.content)
+        
+        logger.info(f"Downloaded PDF: {pdf_path}")
+        return pdf_path
+    except Exception as e:
+        logger.error(f"Error downloading PDF for {paper_id}: {str(e)}")
+        return ""
+
 
 # Tool definition
 export_papers_tool = types.Tool(
@@ -68,6 +127,18 @@ export_papers_tool = types.Tool(
                 "default": 0.2,
                 "minimum": 0.0,
                 "maximum": 1.0
+            },
+            "max_papers": {
+                "type": "integer",
+                "description": "Maximum number of papers to export and download (1-10)",
+                "default": 3,
+                "minimum": 1,
+                "maximum": 10
+            },
+            "download_pdfs": {
+                "type": "boolean",
+                "description": "Whether to download PDFs and extract full text content",
+                "default": True
             }
         },
         "required": ["query", "venues"]
@@ -80,10 +151,12 @@ async def handle_export_papers(arguments: Dict[str, Any]) -> List[types.TextCont
     try:
         query = arguments.get("query")
         venues = arguments.get("venues", [])
-        export_dir = arguments.get("export_dir", settings.DEFAULT_EXPORT_DIR)
+        export_dir = arguments.get("export_dir", settings.default_export_dir)
         filename = arguments.get("filename")
         include_abstracts = arguments.get("include_abstracts", True)
         min_score = arguments.get("min_score", 0.2)
+        max_papers = arguments.get("max_papers", 3)
+        download_pdfs = arguments.get("download_pdfs", True)
         
         if not query:
             return [types.TextContent(
@@ -109,9 +182,9 @@ async def handle_export_papers(arguments: Dict[str, Any]) -> List[types.TextCont
         
         # Initialize client
         client = OpenReviewClient(
-            username=settings.OPENREVIEW_USERNAME,
-            password=settings.OPENREVIEW_PASSWORD,
-            base_url=settings.OPENREVIEW_BASE_URL
+            username=settings.openreview_username,
+            password=settings.openreview_password,
+            base_url=settings.openreview_base_url
         )
         
         export_data = {
@@ -180,8 +253,49 @@ async def handle_export_papers(arguments: Dict[str, Any]) -> List[types.TextCont
                 text=f"No papers found matching query '{query}' with minimum score {min_score}"
             )]
         
-        # Sort all papers by match score
+        # Sort all papers by match score and limit to max_papers
         export_data["papers"].sort(key=lambda x: x['match_score'], reverse=True)
+        export_data["papers"] = export_data["papers"][:max_papers]
+        
+        # Download PDFs and extract text if requested
+        if download_pdfs and export_data["papers"]:
+            logger.info(f"Downloading PDFs and extracting text for top {len(export_data['papers'])} papers")
+            
+            for paper in export_data["papers"]:
+                paper_id = paper["id"]
+                
+                # Download PDF
+                pdf_path = download_pdf(paper_id, export_dir)
+                if pdf_path and os.path.exists(pdf_path):
+                    paper["pdf_file"] = pdf_path
+                    
+                    # Extract text up to references
+                    extracted_text = extract_up_to_references(pdf_path)
+                    if extracted_text:
+                        # Save extracted text to JSON file
+                        text_file = os.path.join(export_dir, f"{paper_id}_text.json")
+                        text_data = {
+                            "paper_id": paper_id,
+                            "title": paper["title"],
+                            "authors": paper["authors"],
+                            "venue": paper["venue"],
+                            "extracted_text": extracted_text,
+                            "extraction_date": datetime.now().isoformat(),
+                            "pdf_file": pdf_path
+                        }
+                        
+                        with open(text_file, 'w', encoding='utf-8') as f:
+                            json.dump(text_data, f, indent=2, ensure_ascii=False)
+                        
+                        paper["text_file"] = text_file
+                        paper["has_extracted_text"] = True
+                        logger.info(f"Extracted text saved to: {text_file}")
+                    else:
+                        paper["has_extracted_text"] = False
+                        logger.warning(f"Failed to extract text from {pdf_path}")
+                else:
+                    paper["has_extracted_text"] = False
+                    logger.warning(f"Failed to download PDF for {paper_id}")
         
         # Write to JSON file
         json_file = os.path.join(export_dir, f"{filename}.json")
@@ -213,19 +327,31 @@ async def handle_export_papers(arguments: Dict[str, Any]) -> List[types.TextCont
         # Format response
         result = f"Export completed successfully!\n\n"
         result += f"Query: '{query}'\n"
-        result += f"Papers found: {total_papers}\n"
+        result += f"Papers exported: {len(export_data['papers'])} (limited to top {max_papers})\n"
         result += f"Venues searched: {', '.join([f"{v['venue']} {v['year']}" for v in venues])}\n"
-        result += f"Min match score: {min_score}\n\n"
+        result += f"Min match score: {min_score}\n"
+        result += f"PDFs downloaded: {'Yes' if download_pdfs else 'No'}\n\n"
         result += f"Files created:\n"
         result += f"- Main export: {json_file}\n"
-        result += f"- Summary: {summary_file}\n\n"
-        result += f"Top 5 papers by relevance:\n"
+        result += f"- Summary: {summary_file}\n"
         
-        for i, paper in enumerate(export_data["papers"][:5], 1):
-            result += f"{i}. {paper['title']} (Score: {paper['match_score']:.3f})\n"
-            result += f"   {paper['venue']}\n\n"
+        if download_pdfs:
+            result += f"\nFor each paper:\n"
+            for i, paper in enumerate(export_data["papers"], 1):
+                result += f"{i}. {paper['title']} (Score: {paper['match_score']:.3f})\n"
+                result += f"   Venue: {paper['venue']}\n"
+                if paper.get('pdf_file'):
+                    result += f"   PDF: {os.path.basename(paper['pdf_file'])}\n"
+                if paper.get('text_file'):
+                    result += f"   Text: {os.path.basename(paper['text_file'])}\n"
+                result += f"\n"
+        else:
+            result += f"\nTop papers by relevance:\n"
+            for i, paper in enumerate(export_data["papers"], 1):
+                result += f"{i}. {paper['title']} (Score: {paper['match_score']:.3f})\n"
+                result += f"   {paper['venue']}\n\n"
         
-        result += f"Use these JSON files with Claude Code to implement methods inspired by the papers!"
+        result += f"Use these files with Claude Code to implement methods inspired by the papers!"
         
         return [types.TextContent(type="text", text=result)]
         

@@ -50,9 +50,9 @@ async def handle_search_user(arguments: Dict[str, Any]) -> List[types.TextConten
         
         # Initialize client
         client = OpenReviewClient(
-            username=settings.OPENREVIEW_USERNAME,
-            password=settings.OPENREVIEW_PASSWORD,
-            base_url=settings.OPENREVIEW_BASE_URL
+            username=settings.openreview_username,
+            password=settings.openreview_password,
+            base_url=settings.openreview_base_url
         )
         
         # Search for user
