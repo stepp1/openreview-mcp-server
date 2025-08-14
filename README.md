@@ -74,12 +74,28 @@ search_user(email="researcher@university.edu", include_publications=true)
 ### get_user_papers
 Fetch all papers published by a specific user.
 
+Input schema:
+
+| Field    | Type   | Description                                              | Required | Default   | Allowed Values         |
+|----------|--------|----------------------------------------------------------|----------|-----------|-----------------------|
+| `email`  | string | Email address of the user whose papers to fetch          | Yes      | —         | —                     |
+| `format` | string | Format of the response: summary or detailed              | No       | summary   | `summary`, `detailed` |
+
 ```python
 get_user_papers(email="researcher@university.edu", format="detailed")
 ```
 
 ### get_conference_papers
 Get papers from a specific conference and year.
+
+Input schema:
+
+| Field    | Type     | Description                                                                 | Required | Default   | Allowed Values                    |
+|----------|----------|-----------------------------------------------------------------------------|----------|-----------|-----------------------------------|
+| `venue`  | string   | Conference venue (e.g., `"ICLR.cc"`, `"NeurIPS.cc"`, `"ICML.cc"`)           | Yes      | —         | `ICLR.cc`, `NeurIPS.cc`, `ICML.cc`|
+| `year`   | string   | Conference year (e.g., `"2024"`, `"2025"`)                                  | Yes      | —         | Four-digit year (e.g., `2024`)    |
+| `limit`  | integer  | Maximum number of papers to return                                          | No       | `50`      | 1–1000                            |
+| `format` | string   | Format of the response: summary or detailed                                 | No       | `summary` | `summary`, `detailed`             |
 
 ```python
 get_conference_papers(venue="ICLR.cc", year="2024", limit=50)
@@ -88,10 +104,27 @@ get_conference_papers(venue="ICLR.cc", year="2024", limit=50)
 ### search_papers
 Search for papers by keywords across multiple conferences.
 
+Search modes:
+- **any**: returns papers that match at least one of the keywords in the specified fields. If any keyword is found, the paper is included.
+- **all**: returns papers that match all of the keywords in the specified fields. Only papers containing every keyword are included.
+- **exact**: returns papers that contain the exact phrase (all keywords together, in order) in the specified fields.
+
+Input schema:
+
+| Field           | Type     | Description                                                                                  | Required | Default                | Allowed Values                |
+|-----------------|----------|----------------------------------------------------------------------------------------------|----------|------------------------|-------------------------------|
+| `query`         | string   | Keywords or phrase to search for (e.g., `"time series token merging"`, `"neural networks"`)  | Yes      | —                      | —                             |
+| `venues`        | array    | List of conference venues and years to search in.<br>Each item:<br>• `venue`: string<br>• `year`: string | Yes      | —                      | —                             |
+| `search_fields` | array    | Fields to search in. Options: `"title"`, `"abstract"`, `"authors"`                           | No       | `["title", "abstract"]`| `"title"`, `"abstract"`, `"authors"` |
+| `match_mode`    | string   | How keywords are matched:<br>• `"any"`: match any keyword<br>• `"all"`: match all keywords<br>• `"exact"`: match exact phrase | No       | `"all"`                | `"any"`, `"all"`, `"exact"`   |
+| `limit`         | integer  | Maximum number of results to return                                                          | No       | `20`                   | 1–100                         |
+| `min_score`     | number   | Minimum match score (between 0.0 and 1.0)                                                    | No       | `0.1`                  | 0.0–1.0                       |
+
 ```python
 search_papers(
   query="time series token merging",
   match_mode="all",
+  search_fields=["title", "abstract"],
   venues=[
     {"venue": "ICLR.cc", "year": "2024"},
     {"venue": "NeurIPS.cc", "year": "2024"}
@@ -102,6 +135,19 @@ search_papers(
 
 ### export_papers
 Export search results to JSON files for analysis.
+
+Input schema:
+
+| Field             | Type     | Description                                                                                  | Required | Default                  | Allowed Values                |
+|-------------------|----------|----------------------------------------------------------------------------------------------|----------|--------------------------|-------------------------------|
+| `query`           | string   | Keywords to search for before export                                                          | Yes      | —                        | —                             |
+| `venues`          | array    | List of conference venues and years to export from.<br>Each item:<br>• `venue`: string<br>• `year`: string | Yes      | —                        | —                             |
+| `export_dir`      | string   | Directory to export JSON files to                                                             | No       | `./openreview_exports`   | —                             |
+| `filename`        | string   | Base filename for the export (without extension)                                              | No       | *auto-generated*         | —                             |
+| `include_abstracts`| boolean | Whether to include full abstracts in export                                                   | No       | `True`                   | `True`, `False`               |
+| `min_score`       | number   | Minimum match score for search results (0.0 to 1.0)                                          | No       | `0.2`                    | 0.0–1.0                       |
+| `max_papers`      | integer  | Maximum number of papers to export and download                                               | No       | `3`                      | 1–10                          |
+| `download_pdfs`   | boolean  | Whether to download PDFs and extract full text content                                        | No       | `True`                   | `True`, `False`               |
 
 ```python
 export_papers(
