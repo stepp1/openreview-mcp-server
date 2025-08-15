@@ -11,20 +11,16 @@ from typing import Optional
 
 class Settings(BaseSettings):
     """Configuration settings for OpenReview MCP server."""
-    
+
     app_name: str = "openreview-mcp-server"
     app_version: str = "0.1.0"
     openreview_base_url: str = "https://api2.openreview.net"
     openreview_username: Optional[str] = None
     openreview_password: Optional[str] = None
-    
+
     # Default venues to support
-    default_venues: list = [
-        "ICLR.cc",
-        "NeurIPS.cc", 
-        "ICML.cc"
-    ]
-    
+    default_venues: list = ["ICLR.cc", "NeurIPS.cc", "ICML.cc"]
+
     # Cache settings
     cache_enabled: bool = True
     cache_ttl_seconds: int = 3600  # 1 hour

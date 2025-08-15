@@ -14,11 +14,16 @@ from mcp.server import NotificationOptions
 from mcp.server.stdio import stdio_server
 from .config import Settings
 from .tools import (
-    handle_search_user, search_user_tool,
-    handle_get_user_papers, get_user_papers_tool,
-    handle_get_conference_papers, get_conference_papers_tool,
-    handle_search_papers, search_papers_tool,
-    handle_export_papers, export_papers_tool
+    handle_search_user,
+    search_user_tool,
+    handle_get_user_papers,
+    get_user_papers_tool,
+    handle_get_conference_papers,
+    get_conference_papers_tool,
+    handle_search_papers,
+    search_papers_tool,
+    handle_export_papers,
+    export_papers_tool,
 )
 
 settings = Settings()
@@ -35,7 +40,7 @@ async def list_tools() -> List[types.Tool]:
         get_user_papers_tool,
         get_conference_papers_tool,
         search_papers_tool,
-        export_papers_tool
+        export_papers_tool,
     ]
 
 
@@ -80,4 +85,5 @@ async def main():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())

@@ -23,17 +23,17 @@ get_user_papers_tool = types.Tool(
         "properties": {
             "email": {
                 "type": "string",
-                "description": "Email address of the user whose papers to fetch"
+                "description": "Email address of the user whose papers to fetch",
             },
             "format": {
                 "type": "string",
                 "enum": ["summary", "detailed"],
                 "description": "Format of the response - summary or detailed",
-                "default": "summary"
-            }
+                "default": "summary",
+            },
         },
-        "required": ["email"]
-    }
+        "required": ["email"],
+    },
 )
 
 
@@ -42,50 +42,53 @@ async def handle_get_user_papers(arguments: Dict[str, Any]) -> List[types.TextCo
     try:
         email = arguments.get("email")
         format_type = arguments.get("format", "summary")
-        
+
         if not email:
-            return [types.TextContent(
-                type="text",
-                text="Error: Email address is required"
-            )]
-        
+            return [
+                types.TextContent(type="text", text="Error: Email address is required")
+            ]
+
         # Initialize client
         client = OpenReviewClient(
             username=settings.openreview_username,
             password=settings.openreview_password,
-            base_url=settings.openreview_base_url
+            base_url=settings.openreview_base_url,
         )
-        
+
         # Get user papers
         papers = client.get_user_papers(email)
-        
+
         if not papers:
-            return [types.TextContent(
-                type="text",
-                text=f"No papers found for user: {email}"
-            )]
-        
+            return [
+                types.TextContent(
+                    type="text", text=f"No papers found for user: {email}"
+                )
+            ]
+
         # Format response
         result = f"Papers by {email} ({len(papers)} total):\n\n"
-        
+
         for i, paper in enumerate(papers, 1):
             result += f"{i}. {paper.title}\n"
             result += f"   Venue: {paper.venue}\n"
             result += f"   Authors: {', '.join(paper.authors)}\n"
             result += f"   URL: {paper.url}\n"
-            
+
             if format_type == "detailed":
                 # Truncate abstract to reasonable length
-                abstract = paper.abstract[:300] + "..." if len(paper.abstract) > 300 else paper.abstract
+                abstract = (
+                    paper.abstract[:300] + "..."
+                    if len(paper.abstract) > 300
+                    else paper.abstract
+                )
                 result += f"   Abstract: {abstract}\n"
-            
+
             result += "\n"
-        
+
         return [types.TextContent(type="text", text=result)]
-        
+
     except Exception as e:
         logger.error(f"Error in get_user_papers: {str(e)}")
-        return [types.TextContent(
-            type="text",
-            text=f"Error fetching user papers: {str(e)}"
-        )]
+        return [
+            types.TextContent(type="text", text=f"Error fetching user papers: {str(e)}")
+        ]
