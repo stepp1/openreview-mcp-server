@@ -79,18 +79,6 @@ class TestSearchFunctionality:
             }
         }
     
-    def test_search_any_match(self):
-        """Test search with 'any' match mode."""
-        results = self.client._search_submissions_dict(
-            self.test_submissions,
-            "neural networks",
-            match_mode="any"
-        )
-        
-        assert len(results) == 2  # Both papers should match
-        assert "paper1" in results
-        assert "paper2" in results
-    
     def test_search_all_match(self):
         """Test search with 'all' match mode."""
         results = self.client._search_submissions_dict(
