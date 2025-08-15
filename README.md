@@ -27,6 +27,12 @@ Create a `.env` file with your OpenReview credentials for local development:
 ```env
 OPENREVIEW_USERNAME=your_email@domain.com
 OPENREVIEW_PASSWORD=your_password
+
+# Optional
+OPENREVIEW_BASE_URL=https://api2.openreview.net
+OPENREVIEW_DEFAULT_EXPORT_DIR=./openreview_exports
+OPENREVIEW_CACHE_ENABLED=true
+OPENREVIEW_CACHE_TTL_SECONDS=3600
 ```
 
 ## Usage with Claude Code
