@@ -35,7 +35,13 @@ OPENREVIEW_DEFAULT_EXPORT_DIR=./openreview_exports
 
 ## Usage with Claude Code
 
-Add this server to your Claude Code MCP configuration:
+Add server from the command line:
+
+```sh
+claude mcp add-json openreview '{"command":"openreview-mcp-server","cwd":"/install/dir/openreview-mcp-server","env":{"OPENREVIEW_USERNAME":"username","OPENREVIEW_PASSWORD":"password","OPENREVIEW_BASE_URL":"https://api2.openreview.net","OPENREVIEW_DEFAULT_EXPORT_DIR":"./openreview_exports"}}'
+```
+
+Or add to your Claude Code MCP configuration:
 
 ```json
 {
@@ -52,16 +58,10 @@ Add this server to your Claude Code MCP configuration:
 }
 ```
 
-From the command line:
-
-```sh
-claude mcp add-json openreview '{"command":"openreview-mcp-server","cwd":"/install/dir/openreview-mcp-server","env":{"OPENREVIEW_USERNAME":"username","OPENREVIEW_PASSWORD":"password","OPENREVIEW_BASE_URL":"https://api2.openreview.net","OPENREVIEW_DEFAULT_EXPORT_DIR":"./openreview_exports"}}'
-```
-
-Then run the query:
+Then run your query:
 
 ```
-Can you please use search_papers tool from the openreview mcp with keywords "time series token merging", match mode "all", venues ICLR and ICML 2025?
+Can you please search papers using openreview mcp with keywords "time series token merging", match all keywords, venues ICLR and ICML 2025?
 ...
 Please export the contents of this paper.
 ```
