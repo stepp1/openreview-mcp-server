@@ -191,19 +191,6 @@ export_papers(query="time series token merging", venues=[{"venue":"ICML.cc","yea
 - NeurIPS (Conference on Neural Information Processing Systems)
 - ICML (International Conference on Machine Learning)
 
-## Development
-
-```bash
-# Install in development mode
-pip install -e ".[dev,test]"
-
-# Run tests
-pytest
-
-# Format code
-black .
-```
-
 ## License
 
 MIT License
