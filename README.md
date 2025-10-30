@@ -16,6 +16,29 @@ A Model Context Protocol (MCP) server that provides access to OpenReview data fo
 
 ## Installation
 
+Using uvx:
+
+```bash
+uvx --from git+https://github.com/stepp1/openreview-mcp-server.git openreview-mcp-server
+```
+Adding it to Cursor:
+
+```
+{
+  "mcpServers": {
+    "openreview": {
+        "command": "uvx",
+        "args": ["--from", "git+https://github.com/stepp1/openreview-mcp-server.git", "openreview-mcp-server"],
+        "env": {
+          "OPENREVIEW_USERNAME": "victor.faraggi@ug.uchile.cl",
+          "OPENREVIEW_PASSWORD": "xp5ZjyY75bSaP9F"
+        }
+      }
+  }
+}
+```
+
+For local development:
 ```bash
 pip install -e .
 ```
