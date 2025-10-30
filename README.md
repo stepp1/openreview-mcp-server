@@ -30,8 +30,8 @@ Adding it to Cursor:
         "command": "uvx",
         "args": ["--from", "git+https://github.com/stepp1/openreview-mcp-server.git", "openreview-mcp-server"],
         "env": {
-          "OPENREVIEW_USERNAME": "victor.faraggi@ug.uchile.cl",
-          "OPENREVIEW_PASSWORD": "xp5ZjyY75bSaP9F"
+          "OPENREVIEW_USERNAME": "USER",
+          "OPENREVIEW_PASSWORD": "PASSWORD"
         }
       }
   }
