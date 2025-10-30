@@ -332,7 +332,7 @@ async def handle_export_papers(arguments: Dict[str, Any]) -> List[types.TextCont
         result = f"Export completed successfully!\n\n"
         result += f"Query: '{query}'\n"
         result += f"Papers exported: {len(export_data['papers'])} (limited to top {max_papers})\n"
-        result += f"Venues searched: {', '.join([f"{v['venue']} {v['year']}" for v in venues])}\n"
+        result += f"Venues searched: {', '.join([f'{v['venue']} {v['year']}' for v in venues])}\n"
         result += f"Min match score: {min_score}\n"
         result += f"PDFs downloaded: {'Yes' if download_pdfs else 'No'}\n\n"
         result += f"Files created:\n"
